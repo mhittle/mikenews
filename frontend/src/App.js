@@ -423,19 +423,23 @@ const Home = () => {
   const fetchArticles = async () => {
     setLoading(true);
     try {
+      console.log("Fetching articles from backend...");
       const headers = {};
       const token = localStorage.getItem('token');
       if (token) {
         headers.Authorization = `Bearer ${token}`;
+        console.log("Using auth token for request");
       }
       
+      console.log(`Making API request to ${API}/articles`);
       const response = await axios.get(`${API}/articles`, { headers });
-      console.log("Articles response:", response.data);
+      console.log("Articles response:", response);
       
       if (response.data && response.data.length > 0) {
+        console.log(`Got ${response.data.length} articles from API`);
         setArticles(response.data);
       } else {
-        console.log("No articles found - showing sample articles");
+        console.log("No articles returned from API, using sample articles");
         // Add fallback sample articles for empty response
         setArticles([
           {
@@ -475,12 +479,34 @@ const Home = () => {
               topics: ["help", "demo"],
               region: "europe"
             }
+          },
+          {
+            id: "sample-3",
+            title: "Understanding News Bias and Propaganda",
+            url: "#",
+            source: "NewsAlgo Demo",
+            author: "System",
+            published_date: new Date().toISOString(),
+            summary: "Learn how the NewsAlgo system detects and classifies bias and propaganda in news articles.",
+            is_paywalled: false,
+            classification: {
+              reading_level: 8,
+              information_density: 9,
+              bias_score: 10,
+              propaganda_score: 10,
+              length: 1200,
+              topics: ["media", "politics"],
+              region: "north_america"
+            }
           }
         ]);
       }
     } catch (error) {
       console.error("Failed to fetch articles:", error);
-      // Add fallback articles for testing
+      console.log("Error details:", error.response || error.message);
+      
+      // Show sample articles even on error
+      console.log("Using sample articles due to error");
       setArticles([
         {
           id: "sample-1",
