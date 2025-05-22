@@ -670,7 +670,13 @@ async def list_articles(
         
         # Topic preferences if specified
         if prefs.topics:
-            query["classification.topics"] = {"$in": prefs.topics}
+            if prefs.topics_filter_type == "AND":
+                # For AND logic, each topic must be present
+                for topic in prefs.topics:
+                    query["classification.topics"] = {"$all": prefs.topics}
+            else:
+                # Default OR logic
+                query["classification.topics"] = {"$in": prefs.topics}
         
         # Region preferences if specified
         if prefs.regions:
