@@ -114,6 +114,7 @@ const Navbar = () => {
           {user ? (
             <>
               <Link to="/preferences" className="hover:text-blue-300">My Preferences</Link>
+              <Link to="/admin" className="hover:text-blue-300">Admin Panel</Link>
               <button onClick={handleLogout} className="hover:text-blue-300">Logout</button>
             </>
           ) : (
