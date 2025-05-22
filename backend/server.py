@@ -231,15 +231,41 @@ async def detect_paywall(article: Article):
         return False
 
 async def extract_full_article(article: Article):
-    """Extract full article content using newspaper3k"""
+    """Extract full article content using newspaper3k if available, or fallback to simple extraction"""
     try:
-        news_article = NewspaperArticle(article.url)
-        news_article.download()
-        news_article.parse()
-        
-        article.content = news_article.text
-        article.author = news_article.authors[0] if news_article.authors else None
-        article.image_url = news_article.top_image
+        if newspaper_available:
+            news_article = NewspaperArticle(article.url)
+            news_article.download()
+            news_article.parse()
+            
+            article.content = news_article.text
+            article.author = news_article.authors[0] if news_article.authors else None
+            article.image_url = news_article.top_image
+        else:
+            # Simple fallback extraction
+            response = requests.get(article.url, timeout=10)
+            
+            # Basic extraction of article content
+            # This is a very simplified approach - won't work well on many sites
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Try to find main content - this is a simple approach
+            # Real extraction requires more sophisticated methods
+            content_elements = soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
+            content = ' '.join([el.get_text() for el in content_elements])
+            
+            # Try to find author
+            author_elements = soup.find_all(['a', 'span', 'div'], string=lambda text: text and 'by' in text.lower())
+            author = author_elements[0].get_text().replace('By', '').replace('by', '').strip() if author_elements else None
+            
+            # Try to find main image
+            image_element = soup.find('meta', property='og:image')
+            image_url = image_element['content'] if image_element else None
+            
+            article.content = content
+            article.author = author
+            article.image_url = image_url
         
         return article
     except Exception as e:
