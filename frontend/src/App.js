@@ -443,26 +443,33 @@ const Home = () => {
     setLoading(true);
     try {
       console.log("Fetching articles from backend...");
-      const headers = {};
       const token = localStorage.getItem('token');
+      
+      // Determine which endpoint to use based on whether user is logged in
+      let endpoint = `${API}/articles`;
+      const headers = {};
+      
       if (token) {
+        console.log("Using authenticated endpoint");
         headers.Authorization = `Bearer ${token}`;
-        console.log("Using auth token for request");
+      } else {
+        console.log("Using sample articles endpoint for guest");
+        endpoint = `${API}/sample-articles`;
       }
       
-      console.log(`Making API request to ${API}/articles`);
-      const response = await axios.get(`${API}/articles`, { headers });
+      console.log(`Making API request to ${endpoint}`);
+      const response = await axios.get(endpoint, { headers });
       console.log("Articles response:", response);
       
       if (response.data && response.data.length > 0) {
         console.log(`Got ${response.data.length} articles from API`);
         setArticles(response.data);
       } else {
-        console.log("No articles returned from API, using sample articles");
+        console.log("No articles returned from API, using fallback sample articles");
         // Add fallback sample articles for empty response
         setArticles([
           {
-            id: "sample-1",
+            id: "fallback-1",
             title: "Sample Article: Getting Started with NewsAlgo",
             url: "#",
             source: "NewsAlgo Demo",
@@ -481,7 +488,7 @@ const Home = () => {
             }
           },
           {
-            id: "sample-2",
+            id: "fallback-2",
             title: "How to Use the Filter Controls",
             url: "#",
             source: "NewsAlgo Demo",
@@ -500,7 +507,7 @@ const Home = () => {
             }
           },
           {
-            id: "sample-3",
+            id: "fallback-3",
             title: "Understanding News Bias and Propaganda",
             url: "#",
             source: "NewsAlgo Demo",
@@ -525,10 +532,10 @@ const Home = () => {
       console.log("Error details:", error.response || error.message);
       
       // Show sample articles even on error
-      console.log("Using sample articles due to error");
+      console.log("Using fallback sample articles due to error");
       setArticles([
         {
-          id: "sample-1",
+          id: "error-1",
           title: "Sample Article: Getting Started with NewsAlgo",
           url: "#",
           source: "NewsAlgo Demo",
@@ -547,7 +554,7 @@ const Home = () => {
           }
         },
         {
-          id: "sample-2",
+          id: "error-2",
           title: "How to Use the Filter Controls",
           url: "#",
           source: "NewsAlgo Demo",
