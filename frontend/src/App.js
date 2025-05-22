@@ -1267,6 +1267,11 @@ const AdminPanel = () => {
           </button>
         </div>
         
+        <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded">
+          <p><strong>Note:</strong> RSS feed processing happens in the background and may take some time. After processing, articles will be available on the home page.</p>
+          <p className="mt-2">You can test the app with the demo articles that appear on the home page while waiting for real articles to be processed.</p>
+        </div>
+        
         {feedFormVisible && (
           <div className="bg-gray-50 p-4 rounded-lg mb-6">
             <h2 className="text-xl font-semibold mb-3">Add New RSS Feed</h2>
