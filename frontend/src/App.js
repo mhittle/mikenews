@@ -905,6 +905,18 @@ const Preferences = () => {
           
           <div>
             <h3 className="text-lg font-medium mb-3">Topics</h3>
+            <div className="mb-2">
+              <label className="block text-sm text-gray-600 mb-1">Topic matching:</label>
+              <select
+                name="topics_filter_type"
+                value={preferences.topics_filter_type}
+                onChange={handleChange}
+                className="p-2 border border-gray-300 rounded text-sm"
+              >
+                <option value="OR">Match ANY selected topic (OR)</option>
+                <option value="AND">Match ALL selected topics (AND)</option>
+              </select>
+            </div>
             <p className="text-sm text-gray-600 mb-2">Select topics you're interested in:</p>
             <div className="flex flex-wrap gap-2">
               {topics.map(topic => (
