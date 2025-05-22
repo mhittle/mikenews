@@ -88,6 +88,7 @@ class UserPreferences(BaseModel):
     topics: List[str] = []
     regions: List[str] = []
     show_paywalled: bool = True
+    topics_filter_type: str = "OR"  # "AND" or "OR"
 
 class User(UserBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
