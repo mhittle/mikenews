@@ -561,6 +561,13 @@ const Home = () => {
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-bold mb-2">NewsAlgo</h1>
         <p className="text-xl text-gray-600">Customize your news feed algorithm</p>
+        
+        {!user && (
+          <div className="mt-4 p-3 bg-blue-100 text-blue-800 rounded max-w-xl mx-auto">
+            <p><strong>Welcome!</strong> To get the full experience, please <Link to="/login" className="text-blue-600 underline">log in</Link> or <Link to="/register" className="text-blue-600 underline">register</Link>.</p>
+            <p className="mt-2">As a guest, you can browse sample articles and see how the interface works.</p>
+          </div>
+        )}
       </div>
       
       <FilterBar 
