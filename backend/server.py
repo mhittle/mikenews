@@ -34,8 +34,22 @@ import statistics
 # Download required NLTK data
 try:
     nltk.data.find('tokenizers/punkt')
+    print("NLTK punkt data found")
 except LookupError:
-    nltk.download('punkt')
+    try:
+        nltk.download('punkt')
+        print("NLTK punkt data downloaded successfully")
+    except:
+        print("Failed to download NLTK punkt data, will use fallback tokenization")
+
+# Define a fallback tokenization function in case NLTK is not available
+def simple_tokenize(text):
+    """Simple fallback tokenization that splits on common sentence endings"""
+    if not text:
+        return []
+    # Split on common sentence endings
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    return [s for s in sentences if s]
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
