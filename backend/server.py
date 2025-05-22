@@ -144,7 +144,11 @@ def get_password_hash(password):
 async def get_user(username: str):
     user_dict = await db.users.find_one({"username": username})
     if user_dict:
-        return User(**user_dict)
+        # Need to handle password separately since it's not part of the User model
+        password = user_dict.pop("password", None)
+        user = User(**user_dict)
+        user.password = password
+        return user
 
 async def authenticate_user(username: str, password: str):
     user = await get_user(username)
