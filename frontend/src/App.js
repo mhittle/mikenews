@@ -726,11 +726,23 @@ const Register = () => {
       return;
     }
     
-    const result = await register(email, username, password);
-    if (result.success) {
+    try {
+      console.log("Submitting registration with:", { email, username });
+      const response = await axios.post(`${API}/users`, {
+        email,
+        username,
+        password
+      });
+      console.log("Registration successful:", response.data);
       setSuccess(true);
-    } else {
-      setError(result.message);
+    } catch (error) {
+      console.error("Registration error:", error);
+      if (error.response) {
+        console.log("Error response:", error.response.data);
+        setError(error.response.data.detail || "Registration failed");
+      } else {
+        setError("Registration failed: " + (error.message || "Unknown error"));
+      }
     }
   };
   
