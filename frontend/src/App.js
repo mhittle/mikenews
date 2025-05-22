@@ -984,6 +984,361 @@ const Preferences = () => {
   );
 };
 
+const AdminPanel = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [feeds, setFeeds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
+  const [feedFormVisible, setFeedFormVisible] = useState(false);
+  const [newFeed, setNewFeed] = useState({
+    url: '',
+    name: '',
+    category: 'news',
+    region: 'north_america'
+  });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    
+    fetchFeeds();
+  }, [user, navigate]);
+  
+  const fetchFeeds = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API}/feeds`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setFeeds(response.data);
+    } catch (error) {
+      console.error("Failed to fetch feeds:", error);
+      setError("Failed to load RSS feeds");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewFeed(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+  
+  const addFeed = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    
+    if (!newFeed.url || !newFeed.name || !newFeed.category || !newFeed.region) {
+      setError('All fields are required');
+      return;
+    }
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `${API}/feeds`,
+        newFeed,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setSuccess('Feed added successfully');
+      setNewFeed({
+        url: '',
+        name: '',
+        category: 'news',
+        region: 'north_america'
+      });
+      setFeedFormVisible(false);
+      fetchFeeds();
+    } catch (error) {
+      console.error("Failed to add feed:", error);
+      setError(error.response?.data?.detail || "Failed to add feed");
+    }
+  };
+  
+  const deleteFeed = async (feedId) => {
+    if (!window.confirm('Are you sure you want to delete this feed?')) {
+      return;
+    }
+    
+    setError('');
+    setSuccess('');
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(
+        `${API}/feeds/${feedId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setSuccess('Feed deleted successfully');
+      fetchFeeds();
+    } catch (error) {
+      console.error("Failed to delete feed:", error);
+      setError("Failed to delete feed");
+    }
+  };
+  
+  const processFeed = async (feedId) => {
+    setError('');
+    setSuccess('');
+    setProcessing(true);
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `${API}/feeds/${feedId}/process`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setSuccess('Feed processing started');
+    } catch (error) {
+      console.error("Failed to process feed:", error);
+      setError("Failed to process feed");
+    } finally {
+      setProcessing(false);
+    }
+  };
+  
+  const processAllFeeds = async () => {
+    setError('');
+    setSuccess('');
+    setProcessing(true);
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `${API}/process-all-feeds`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setSuccess('Processing all feeds started');
+    } catch (error) {
+      console.error("Failed to process feeds:", error);
+      setError("Failed to process feeds");
+    } finally {
+      setProcessing(false);
+    }
+  };
+  
+  const categories = [
+    "news", "business", "technology", "science", 
+    "health", "sports", "entertainment", "world"
+  ];
+  
+  const regions = [
+    "north_america", "europe", "asia", "middle_east", 
+    "africa", "south_america", "oceania"
+  ];
+  
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h1 className="text-2xl font-bold mb-4">Admin Panel</h1>
+        
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+        
+        {success && (
+          <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
+            {success}
+          </div>
+        )}
+        
+        <div className="flex justify-between items-center mb-6">
+          <button
+            onClick={() => setFeedFormVisible(!feedFormVisible)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            {feedFormVisible ? 'Cancel' : 'Add New Feed'}
+          </button>
+          
+          <button
+            onClick={processAllFeeds}
+            disabled={processing}
+            className={`bg-green-600 text-white px-4 py-2 rounded transition ${
+              processing ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-700'
+            }`}
+          >
+            {processing ? 'Processing...' : 'Process All Feeds'}
+          </button>
+        </div>
+        
+        {feedFormVisible && (
+          <div className="bg-gray-50 p-4 rounded-lg mb-6">
+            <h2 className="text-xl font-semibold mb-3">Add New RSS Feed</h2>
+            
+            <form onSubmit={addFeed}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Feed URL
+                  </label>
+                  <input
+                    type="url"
+                    name="url"
+                    value={newFeed.url}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    required
+                    placeholder="https://example.com/rss.xml"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Feed Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={newFeed.name}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    required
+                    placeholder="Example News"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Category
+                  </label>
+                  <select
+                    name="category"
+                    value={newFeed.category}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    required
+                  >
+                    {categories.map(category => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Region
+                  </label>
+                  <select
+                    name="region"
+                    value={newFeed.region}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    required
+                  >
+                    {regions.map(region => (
+                      <option key={region} value={region}>
+                        {region.replace('_', ' ')}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+              >
+                Add Feed
+              </button>
+            </form>
+          </div>
+        )}
+        
+        {loading ? (
+          <div className="text-center py-10">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+            <p className="mt-2 text-gray-600">Loading feeds...</p>
+          </div>
+        ) : feeds.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white">
+              <thead>
+                <tr className="bg-gray-100 text-gray-700 text-sm uppercase font-semibold">
+                  <th className="py-3 px-4 text-left">Name</th>
+                  <th className="py-3 px-4 text-left">URL</th>
+                  <th className="py-3 px-4 text-left">Category</th>
+                  <th className="py-3 px-4 text-left">Region</th>
+                  <th className="py-3 px-4 text-left">Last Checked</th>
+                  <th className="py-3 px-4 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {feeds.map(feed => (
+                  <tr key={feed.id} className="border-b hover:bg-gray-50">
+                    <td className="py-3 px-4">{feed.name}</td>
+                    <td className="py-3 px-4">
+                      <a 
+                        href={feed.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        {feed.url.length > 40 ? `${feed.url.substring(0, 40)}...` : feed.url}
+                      </a>
+                    </td>
+                    <td className="py-3 px-4">{feed.category}</td>
+                    <td className="py-3 px-4">{feed.region.replace('_', ' ')}</td>
+                    <td className="py-3 px-4">
+                      {feed.last_checked 
+                        ? new Date(feed.last_checked).toLocaleString()
+                        : 'Never'
+                      }
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <div className="flex justify-center space-x-2">
+                        <button
+                          onClick={() => processFeed(feed.id)}
+                          disabled={processing}
+                          className={`text-xs bg-green-600 text-white px-2 py-1 rounded ${
+                            processing ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-700'
+                          }`}
+                        >
+                          Process
+                        </button>
+                        <button
+                          onClick={() => deleteFeed(feed.id)}
+                          className="text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-10">
+            <p className="text-xl text-gray-600">No RSS feeds found</p>
+            <p className="text-gray-500 mt-2">Add some feeds to get started</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 function App() {
   return (
     <div className="App min-h-screen bg-gray-100">
