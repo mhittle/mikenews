@@ -298,7 +298,16 @@ def calculate_reading_level(text):
         return 5  # Default middle value
     
     try:
-        sentences = sent_tokenize(text)
+        # Try to use NLTK tokenization
+        try:
+            sentences = sent_tokenize(text)
+        except Exception:
+            # Fall back to simple tokenization
+            sentences = simple_tokenize(text)
+            
+        if not sentences:
+            return 5
+            
         avg_sentence_length = sum(len(s.split()) for s in sentences) / len(sentences)
         
         # Very simple formula based on avg sentence length
