@@ -430,9 +430,55 @@ const Home = () => {
       }
       
       const response = await axios.get(`${API}/articles`, { headers });
-      setArticles(response.data);
+      console.log("Articles response:", response.data);
+      setArticles(response.data || []);
+      
+      if (response.data && response.data.length === 0) {
+        console.log("No articles found - might need to process feeds first");
+      }
     } catch (error) {
       console.error("Failed to fetch articles:", error);
+      // Add fallback articles for testing
+      setArticles([
+        {
+          id: "sample-1",
+          title: "Sample Article: Getting Started with NewsAlgo",
+          url: "#",
+          source: "NewsAlgo Demo",
+          author: "System",
+          published_date: new Date().toISOString(),
+          summary: "This is a sample article to show how the interface works. You can customize your news feed using the controls above.",
+          is_paywalled: false,
+          classification: {
+            reading_level: 5,
+            information_density: 5,
+            bias_score: 8,
+            propaganda_score: 9,
+            length: 500,
+            topics: ["technology", "demo"],
+            region: "north_america"
+          }
+        },
+        {
+          id: "sample-2",
+          title: "How to Use the Filter Controls",
+          url: "#",
+          source: "NewsAlgo Demo",
+          author: "System",
+          published_date: new Date().toISOString(),
+          summary: "This article explains how to use the reading level, bias, and other filter controls to customize your news experience.",
+          is_paywalled: false,
+          classification: {
+            reading_level: 6,
+            information_density: 7,
+            bias_score: 7,
+            propaganda_score: 8,
+            length: 800,
+            topics: ["help", "demo"],
+            region: "europe"
+          }
+        }
+      ]);
     } finally {
       setLoading(false);
     }
