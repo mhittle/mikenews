@@ -817,6 +817,88 @@ async def get_feed_stats():
 async def root():
     return {"message": "News Aggregator API"}
 
+@api_router.get("/sample-articles", response_model=List[Article])
+async def list_sample_articles(limit: int = 5):
+    """Get sample articles without requiring authentication"""
+    # Get the latest articles from the database
+    articles = await db.articles.find().sort("published_date", -1).limit(limit).to_list(length=None)
+    
+    # If there are no articles in the database, return predefined samples
+    if not articles:
+        # Create sample articles
+        samples = [
+            {
+                "id": "sample-1",
+                "title": "Sample Article: Getting Started with NewsAlgo",
+                "url": "#",
+                "source": "NewsAlgo Demo",
+                "source_id": "sample",
+                "author": "System",
+                "published_date": datetime.utcnow(),
+                "summary": "This is a sample article to show how the interface works. You can customize your news feed using the controls above.",
+                "content": "This is sample content for demonstration purposes.",
+                "is_paywalled": False,
+                "classification": {
+                    "reading_level": 5.0,
+                    "information_density": 5.0,
+                    "bias_score": 8.0,
+                    "propaganda_score": 9.0,
+                    "length": 500,
+                    "topics": ["technology", "demo"],
+                    "region": "north_america"
+                },
+                "created_at": datetime.utcnow()
+            },
+            {
+                "id": "sample-2",
+                "title": "How to Use the Filter Controls",
+                "url": "#",
+                "source": "NewsAlgo Demo",
+                "source_id": "sample",
+                "author": "System",
+                "published_date": datetime.utcnow(),
+                "summary": "This article explains how to use the reading level, bias, and other filter controls to customize your news experience.",
+                "content": "This is sample content for demonstration purposes.",
+                "is_paywalled": False,
+                "classification": {
+                    "reading_level": 6.0,
+                    "information_density": 7.0,
+                    "bias_score": 7.0,
+                    "propaganda_score": 8.0,
+                    "length": 800,
+                    "topics": ["help", "demo"],
+                    "region": "europe"
+                },
+                "created_at": datetime.utcnow()
+            },
+            {
+                "id": "sample-3",
+                "title": "Understanding News Bias and Propaganda",
+                "url": "#",
+                "source": "NewsAlgo Demo",
+                "source_id": "sample",
+                "author": "System",
+                "published_date": datetime.utcnow(),
+                "summary": "Learn how the NewsAlgo system detects and classifies bias and propaganda in news articles.",
+                "content": "This is sample content for demonstration purposes.",
+                "is_paywalled": False,
+                "classification": {
+                    "reading_level": 8.0,
+                    "information_density": 9.0,
+                    "bias_score": 10.0,
+                    "propaganda_score": 10.0,
+                    "length": 1200,
+                    "topics": ["media", "politics"],
+                    "region": "north_america"
+                },
+                "created_at": datetime.utcnow()
+            }
+        ]
+        
+        return [Article(**sample) for sample in samples]
+    
+    return [Article(**article) for article in articles]
+
 # Include the router in the main app
 app.include_router(api_router)
 
