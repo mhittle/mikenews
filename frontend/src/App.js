@@ -330,6 +330,17 @@ const FilterBar = ({ preferences, setPreferences, applyFilters }) => {
       
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-2">Topics</label>
+        <div className="mb-2">
+          <select
+            name="topics_filter_type"
+            value={preferences.topics_filter_type}
+            onChange={handleChange}
+            className="p-2 border border-gray-300 rounded text-sm"
+          >
+            <option value="OR">Match ANY selected topic (OR)</option>
+            <option value="AND">Match ALL selected topics (AND)</option>
+          </select>
+        </div>
         <div className="flex flex-wrap gap-2">
           {topics.map(topic => (
             <button
