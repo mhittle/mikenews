@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 
 class NewsAggregatorAPITester:
-    def __init__(self, base_url="http://localhost:8001/api"):
+    def __init__(self, base_url="https://77443bb1-bc5b-4f32-9dde-106ba7c4f3cf.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.token = None
         self.tests_run = 0
