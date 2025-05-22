@@ -40,6 +40,7 @@ function AuthProvider({ children }) {
   
   const login = async (username, password) => {
     try {
+      console.log("Attempting login with username:", username);
       const response = await axios.post(`${API}/token`, 
         new URLSearchParams({
           'username': username,
@@ -50,15 +51,33 @@ function AuthProvider({ children }) {
         }
       });
       
+      console.log("Login response:", response);
       const { access_token } = response.data;
-      localStorage.setItem('token', access_token);
-      await fetchUserData(access_token);
-      return { success: true };
+      
+      if (access_token) {
+        console.log("Token received, storing in localStorage");
+        localStorage.setItem('token', access_token);
+        await fetchUserData(access_token);
+        return { success: true };
+      } else {
+        console.error("No access token in response");
+        return { 
+          success: false, 
+          message: "Login failed: No access token received" 
+        };
+      }
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.detail || "Login failed" 
-      };
+      console.error("Login error:", error);
+      let errorMessage = "Login failed";
+      
+      if (error.response) {
+        console.log("Error response:", error.response.data);
+        errorMessage = error.response.data.detail || "Login failed";
+      } else if (error.message) {
+        errorMessage = "Login failed: " + error.message;
+      }
+      
+      return { success: false, message: errorMessage };
     }
   };
   
