@@ -19,7 +19,13 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from newspaper import Article as NewspaperArticle
+# Try to import newspaper, but handle ImportError
+try:
+    from newspaper import Article as NewspaperArticle
+    newspaper_available = True
+except ImportError:
+    newspaper_available = False
+    print("Newspaper3k module not available, will use simplified article extraction")
 from nltk.tokenize import sent_tokenize
 import nltk
 import asyncio
