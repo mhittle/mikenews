@@ -723,7 +723,8 @@ const Preferences = () => {
     min_length: 0,
     topics: [],
     regions: [],
-    show_paywalled: true
+    show_paywalled: true,
+    topics_filter_type: "OR"
   });
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
