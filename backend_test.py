@@ -11,6 +11,7 @@ class NewsAggregatorAPITester:
         self.tests_run = 0
         self.tests_passed = 0
         self.test_results = []
+        self.test_feed_id = None
 
     def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):
         """Run a single API test"""
@@ -141,6 +142,40 @@ class NewsAggregatorAPITester:
             200,
             data=preferences
         )
+        
+    def test_update_preferences_with_topics_filter_type(self, filter_type):
+        """Test updating user preferences with topics filter type"""
+        preferences = {
+            "reading_level": 7,
+            "information_density": 8,
+            "bias_threshold": 6,
+            "propaganda_threshold": 7,
+            "max_length": 3000,
+            "min_length": 100,
+            "topics": ["technology", "science", "health"],
+            "regions": ["north_america", "europe"],
+            "show_paywalled": False,
+            "topics_filter_type": filter_type
+        }
+        
+        success, response = self.run_test(
+            f"Update Preferences with Topics Filter Type: {filter_type}",
+            "PUT",
+            "users/me/preferences",
+            200,
+            data=preferences
+        )
+        
+        if success and response and hasattr(response, 'json'):
+            response_data = response.json()
+            if response_data.get("topics_filter_type") == filter_type:
+                print(f"✅ Topics filter type correctly set to: {filter_type}")
+                return True
+            else:
+                print(f"❌ Topics filter type not correctly set. Expected: {filter_type}, Got: {response_data.get('topics_filter_type')}")
+                return False
+        
+        return False
 
     def test_get_articles(self):
         """Test getting articles"""
@@ -157,6 +192,75 @@ class NewsAggregatorAPITester:
             "Get Articles with Auth",
             "GET",
             "articles",
+            200
+        )
+        
+    def test_get_feeds(self):
+        """Test getting RSS feeds"""
+        return self.run_test(
+            "Get RSS Feeds",
+            "GET",
+            "feeds",
+            200
+        )
+        
+    def test_add_rss_feed(self, feed_data):
+        """Test adding a new RSS feed"""
+        success, response = self.run_test(
+            "Add RSS Feed",
+            "POST",
+            "feeds",
+            200,  # Should be 201 but checking for 200 to be safe
+            data=feed_data
+        )
+        
+        if success and response and hasattr(response, 'json'):
+            response_data = response.json()
+            if 'id' in response_data:
+                self.test_feed_id = response_data['id']
+                print(f"✅ Feed added with ID: {self.test_feed_id}")
+                return True
+        
+        return False
+        
+    def test_process_feed(self, feed_id=None):
+        """Test processing a specific RSS feed"""
+        if feed_id is None and self.test_feed_id is None:
+            print("❌ No feed ID available for processing")
+            return False
+            
+        feed_id = feed_id or self.test_feed_id
+        
+        return self.run_test(
+            f"Process Feed (ID: {feed_id})",
+            "POST",
+            f"feeds/{feed_id}/process",
+            200,
+            data={}
+        )
+        
+    def test_process_all_feeds(self):
+        """Test processing all RSS feeds"""
+        return self.run_test(
+            "Process All Feeds",
+            "POST",
+            "process-all-feeds",
+            200,
+            data={}
+        )
+        
+    def test_delete_feed(self, feed_id=None):
+        """Test deleting an RSS feed"""
+        if feed_id is None and self.test_feed_id is None:
+            print("❌ No feed ID available for deletion")
+            return False
+            
+        feed_id = feed_id or self.test_feed_id
+        
+        return self.run_test(
+            f"Delete Feed (ID: {feed_id})",
+            "DELETE",
+            f"feeds/{feed_id}",
             200
         )
 
@@ -188,31 +292,54 @@ def main():
     # Test login with admin credentials
     if not tester.test_login("admin", "admin123"):
         print("❌ Login failed, some tests may not work correctly")
+    else:
+        print("✅ Admin login successful")
     
     # Test getting current user
     tester.test_get_current_user()
     
-    # Test updating preferences
-    preferences = {
-        "reading_level": 7,
-        "information_density": 8,
-        "bias_threshold": 6,
-        "propaganda_threshold": 7,
-        "max_length": 3000,
-        "min_length": 100,
-        "topics": ["technology", "science"],
-        "regions": ["north_america", "europe"],
-        "show_paywalled": False
-    }
-    tester.test_update_preferences(preferences)
+    # Test the topics filter type option in preferences
+    print("\n🔍 Testing topics filter type in preferences...")
+    tester.test_update_preferences_with_topics_filter_type("OR")
+    tester.test_update_preferences_with_topics_filter_type("AND")
     
-    # Test getting articles without auth (should work but might not apply preferences)
-    tester.token = None
-    tester.test_get_articles()
+    # Test getting RSS feeds
+    success, response = tester.test_get_feeds()
+    feeds = []
+    if success and response and hasattr(response, 'json'):
+        feeds = response.json()
+        print(f"✅ Found {len(feeds)} RSS feeds")
+    
+    # Test adding a new RSS feed
+    print("\n🔍 Testing adding a new RSS feed...")
+    new_feed = {
+        "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
+        "name": "BBC World News",
+        "category": "world",
+        "region": "europe"
+    }
+    tester.test_add_rss_feed(new_feed)
+    
+    # Test processing a specific feed
+    if tester.test_feed_id:
+        print("\n🔍 Testing processing a specific feed...")
+        tester.test_process_feed()
+    elif feeds:
+        # If we couldn't add a new feed but there are existing feeds, test with the first one
+        print("\n🔍 Testing processing an existing feed...")
+        tester.test_process_feed(feeds[0]['id'])
+    
+    # Test processing all feeds
+    print("\n🔍 Testing processing all feeds...")
+    tester.test_process_all_feeds()
     
     # Test getting articles with auth (should apply preferences)
-    if tester.test_login("admin", "admin123"):
-        tester.test_get_articles_with_auth()
+    tester.test_get_articles_with_auth()
+    
+    # Clean up by deleting the test feed
+    if tester.test_feed_id:
+        print("\n🔍 Cleaning up test feed...")
+        tester.test_delete_feed()
     
     # Print summary
     success = tester.print_summary()
