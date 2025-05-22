@@ -1,0 +1,59 @@
+
+🔍 Testing Root API Endpoint...
+❌ Failed - Error: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+
+🔍 Testing Login...
+❌ Failed - Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/token (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f53910>: Failed to establish a new connection: [Errno 111] Connection refused'))
+❌ Failed - Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/token (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f5dbd0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+❌ Login failed, some tests may not work correctly
+
+🔍 Testing Get Current User...
+❌ Failed - Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/users/me (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f51b50>: Failed to establish a new connection: [Errno 111] Connection refused'))
+
+🔍 Testing topics filter type in preferences...
+
+🔍 Testing Update Preferences with Topics Filter Type: OR...
+❌ Failed - Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/users/me/preferences (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f5cf90>: Failed to establish a new connection: [Errno 111] Connection refused'))
+
+🔍 Testing Update Preferences with Topics Filter Type: AND...
+❌ Failed - Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/users/me/preferences (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f68650>: Failed to establish a new connection: [Errno 111] Connection refused'))
+
+🔍 Testing Get RSS Feeds...
+❌ Failed - Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/feeds (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f6a910>: Failed to establish a new connection: [Errno 111] Connection refused'))
+
+🔍 Testing adding a new RSS feed...
+
+🔍 Testing Add RSS Feed...
+❌ Failed - Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/feeds (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f74d10>: Failed to establish a new connection: [Errno 111] Connection refused'))
+
+🔍 Testing processing all feeds...
+
+🔍 Testing Process All Feeds...
+❌ Failed - Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/process-all-feeds (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f6b290>: Failed to establish a new connection: [Errno 111] Connection refused'))
+
+🔍 Testing Get Articles with Auth...
+❌ Failed - Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/articles (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f691d0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+
+==================================================
+📊 Test Summary: 0/9 tests passed
+==================================================
+
+Failed Tests:
+- Root API Endpoint
+  Error: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+- Login
+  Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/token (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f53910>: Failed to establish a new connection: [Errno 111] Connection refused'))
+- Get Current User
+  Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/users/me (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f51b50>: Failed to establish a new connection: [Errno 111] Connection refused'))
+- Update Preferences with Topics Filter Type: OR
+  Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/users/me/preferences (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f5cf90>: Failed to establish a new connection: [Errno 111] Connection refused'))
+- Update Preferences with Topics Filter Type: AND
+  Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/users/me/preferences (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f68650>: Failed to establish a new connection: [Errno 111] Connection refused'))
+- Get RSS Feeds
+  Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/feeds (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f6a910>: Failed to establish a new connection: [Errno 111] Connection refused'))
+- Add RSS Feed
+  Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/feeds (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f74d10>: Failed to establish a new connection: [Errno 111] Connection refused'))
+- Process All Feeds
+  Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/process-all-feeds (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f6b290>: Failed to establish a new connection: [Errno 111] Connection refused'))
+- Get Articles with Auth
+  Error: HTTPConnectionPool(host='localhost', port=8001): Max retries exceeded with url: /api/articles (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xfc4f84f691d0>: Failed to establish a new connection: [Errno 111] Connection refused'))
