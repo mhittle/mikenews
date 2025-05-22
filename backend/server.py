@@ -569,32 +569,60 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 @api_router.post("/users", response_model=User)
 async def create_user(user: UserCreate):
-    # Check if username already exists
-    existing_user = await db.users.find_one({"username": user.username})
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already registered"
+    try:
+        # Check if username already exists
+        existing_user = await db.users.find_one({"username": user.username})
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username already registered"
+            )
+        
+        # Check if email already exists
+        existing_email = await db.users.find_one({"email": user.email})
+        if existing_email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+        
+        # Create new user
+        hashed_password = get_password_hash(user.password)
+        
+        # Create user with default preferences
+        preferences = UserPreferences(
+            reading_level=5,
+            information_density=5,
+            bias_threshold=5,
+            propaganda_threshold=5,
+            max_length=5000,
+            min_length=0,
+            topics=[],
+            regions=[],
+            show_paywalled=True,
+            topics_filter_type="OR"
         )
-    
-    # Check if email already exists
-    existing_email = await db.users.find_one({"email": user.email})
-    if existing_email:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
+        
+        user_obj = User(
+            id=str(uuid.uuid4()),
+            username=user.username,
+            email=user.email,
+            preferences=preferences,
+            created_at=datetime.utcnow()
         )
-    
-    # Create new user
-    hashed_password = get_password_hash(user.password)
-    user_dict = user.dict()
-    user_dict.pop("password")
-    user_obj = User(**user_dict)
-    user_dict = user_obj.dict()
-    user_dict["password"] = hashed_password
-    
-    await db.users.insert_one(user_dict)
-    return user_obj
+        
+        # Add password to user document (but not in the returned user object)
+        user_dict = user_obj.dict()
+        user_dict["password"] = hashed_password
+        
+        await db.users.insert_one(user_dict)
+        return user_obj
+    except Exception as e:
+        logging.error(f"Error creating user: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )
 
 @api_router.get("/users/me", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_user)):
