@@ -415,7 +415,8 @@ const Home = () => {
     min_length: 0,
     topics: [],
     regions: [],
-    show_paywalled: true
+    show_paywalled: true,
+    topics_filter_type: "OR"
   });
   
   const fetchArticles = async () => {
