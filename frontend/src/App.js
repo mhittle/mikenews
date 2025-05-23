@@ -1678,7 +1678,14 @@ const AdminPanel = () => {
               <tbody>
                 {feeds.map(feed => (
                   <tr key={feed.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4">{feed.name}</td>
+                    <td className="py-3 px-4">
+                      <Link 
+                        to={`/feeds/${feed.id}`}
+                        className="text-blue-600 hover:underline"
+                      >
+                        {feed.name}
+                      </Link>
+                    </td>
                     <td className="py-3 px-4">
                       <a 
                         href={feed.url} 
