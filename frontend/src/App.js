@@ -1155,6 +1155,27 @@ const Preferences = () => {
             </div>
           </div>
           
+          <div>
+            <h3 className="text-lg font-medium mb-3">Article Age</h3>
+            <label className="block text-sm text-gray-600 mb-1">
+              Maximum age: {preferences.max_age_days} days
+            </label>
+            <input
+              type="range"
+              name="max_age_days"
+              min="1"
+              max="90"
+              value={preferences.max_age_days}
+              onChange={handleChange}
+              className="w-full"
+            />
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>Recent (1 day)</span>
+              <span>Older (90 days)</span>
+            </div>
+            <p className="text-sm text-gray-600 mt-1">Only show articles published within this time period</p>
+          </div>
+          
           <div className="flex items-center">
             <input
               id="show_paywalled"
