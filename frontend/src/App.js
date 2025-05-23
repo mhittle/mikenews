@@ -187,25 +187,25 @@ const ArticleCard = ({ article }) => {
           <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
             <div className="flex items-center">
               <span className="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
-              <span>Reading: {article.classification.reading_level.toFixed(1)}/10</span>
+              <span>Reading: {article.classification.reading_level ? article.classification.reading_level.toFixed(1) : "5"}/10</span>
             </div>
             <div className="flex items-center">
               <span className="w-3 h-3 rounded-full bg-green-500 mr-2"></span>
-              <span>Density: {article.classification.information_density.toFixed(1)}/10</span>
+              <span>Density: {article.classification.information_density ? article.classification.information_density.toFixed(1) : "5"}/10</span>
             </div>
             <div className="flex items-center">
               <span className="w-3 h-3 rounded-full bg-purple-500 mr-2"></span>
-              <span>Bias: {article.classification.bias_score.toFixed(1)}/10</span>
+              <span>Bias: {article.classification.bias_score ? article.classification.bias_score.toFixed(1) : "5"}/10</span>
             </div>
             <div className="flex items-center">
               <span className="w-3 h-3 rounded-full bg-orange-500 mr-2"></span>
-              <span>Propaganda: {article.classification.propaganda_score.toFixed(1)}/10</span>
+              <span>Propaganda: {article.classification.propaganda_score ? article.classification.propaganda_score.toFixed(1) : "5"}/10</span>
             </div>
           </div>
         )}
         
         <div className="flex flex-wrap gap-1 mb-3">
-          {article.classification?.topics.map((topic, index) => (
+          {article.classification?.topics && article.classification.topics.map((topic, index) => (
             <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
               {topic}
             </span>
