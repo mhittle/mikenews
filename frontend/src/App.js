@@ -585,6 +585,126 @@ const createFallbackArticles = () => {
   ];
 };
 
+// Helper function to create fallback articles
+const createFallbackArticles = () => {
+  return [
+    {
+      id: "fallback-1",
+      title: "Sample Article: Getting Started with NewsAlgo",
+      url: "#",
+      source: "NewsAlgo Demo",
+      author: "System",
+      published_date: new Date().toISOString(),
+      summary: "This is a sample article to show how the interface works. You can customize your news feed using the controls above. Try adjusting the reading level, bias threshold, and other filters to see how they affect your content.",
+      is_paywalled: false,
+      classification: {
+        reading_level: 5,
+        information_density: 5,
+        bias_score: 8,
+        propaganda_score: 9,
+        length: 500,
+        topics: ["technology", "demo"],
+        region: "north_america"
+      }
+    },
+    {
+      id: "fallback-2",
+      title: "How to Use the Filter Controls in NewsAlgo",
+      url: "#",
+      source: "NewsAlgo Demo",
+      author: "System",
+      published_date: new Date().toISOString(),
+      summary: "This article explains how to use the reading level, bias, and other filter controls to customize your news experience. The more you adjust these settings, the more personalized your feed becomes.",
+      is_paywalled: false,
+      classification: {
+        reading_level: 6,
+        information_density: 7,
+        bias_score: 7,
+        propaganda_score: 8,
+        length: 800,
+        topics: ["help", "demo"],
+        region: "europe"
+      }
+    },
+    {
+      id: "fallback-3",
+      title: "Understanding News Bias and Propaganda Detection",
+      url: "#",
+      source: "NewsAlgo Demo",
+      author: "System",
+      published_date: new Date().toISOString(),
+      summary: "Learn how the NewsAlgo system detects and classifies bias and propaganda in news articles. Our algorithms analyze language patterns, source credibility, and content structure to help you find news that matches your preferences.",
+      is_paywalled: false,
+      classification: {
+        reading_level: 8,
+        information_density: 9,
+        bias_score: 10,
+        propaganda_score: 10,
+        length: 1200,
+        topics: ["media", "politics"],
+        region: "north_america"
+      }
+    },
+    {
+      id: "fallback-4",
+      title: "The Benefits of Customizable News Feeds",
+      url: "#",
+      source: "NewsAlgo Demo",
+      author: "System",
+      published_date: new Date().toISOString(),
+      summary: "In today's media landscape, customization is key to a good news experience. NewsAlgo lets you control exactly what kind of content you see, from the reading difficulty to the geographic focus.",
+      is_paywalled: false,
+      classification: {
+        reading_level: 7,
+        information_density: 6,
+        bias_score: 9,
+        propaganda_score: 8,
+        length: 950,
+        topics: ["technology", "media"],
+        region: "europe"
+      }
+    },
+    {
+      id: "fallback-5",
+      title: "Filtering News by Geographic Region",
+      url: "#",
+      source: "NewsAlgo Demo",
+      author: "System",
+      published_date: new Date().toISOString(),
+      summary: "With NewsAlgo, you can focus on news from specific parts of the world. Whether you're interested in North American politics, European business, or Asian technology trends, our region filters help you stay informed.",
+      is_paywalled: false,
+      classification: {
+        reading_level: 5,
+        information_density: 8,
+        bias_score: 8,
+        propaganda_score: 9,
+        length: 750,
+        topics: ["world", "news"],
+        region: "asia"
+      }
+    },
+    {
+      id: "fallback-6",
+      title: "Advanced Topic Filtering with AND/OR Logic",
+      url: "#",
+      source: "NewsAlgo Demo",
+      author: "System",
+      published_date: new Date().toISOString(),
+      summary: "NewsAlgo's advanced filtering lets you combine topics with AND or OR logic. Want articles that discuss both technology AND healthcare? Or perhaps business OR politics? Our system makes it easy to find exactly what you're looking for.",
+      is_paywalled: false,
+      classification: {
+        reading_level: 7,
+        information_density: 9,
+        bias_score: 10,
+        propaganda_score: 10,
+        length: 1100,
+        topics: ["technology", "science"],
+        region: "north_america"
+      }
+    }
+  ];
+};
+
 // Add fallback article loading on mount
 const HomeWithFallback = () => {
   const homeComponent = <Home />;
