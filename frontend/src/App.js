@@ -901,7 +901,8 @@ const Preferences = () => {
     topics: [],
     regions: [],
     show_paywalled: true,
-    topics_filter_type: "OR"
+    topics_filter_type: "OR",
+    max_age_days: 30
   });
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
