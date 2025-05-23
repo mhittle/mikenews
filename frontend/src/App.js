@@ -230,7 +230,7 @@ const ArticleCard = ({ article }) => {
   );
 };
 
-const FilterBar = ({ preferences, setPreferences, applyFilters }) => {
+const FilterBar = ({ preferences, setPreferences, applyFilters, loading }) => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     
