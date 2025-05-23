@@ -524,7 +524,10 @@ const Home = () => {
       }
       
       console.log(`Making API request to ${endpoint}`);
-      const response = await axios.get(endpoint, { headers });
+      const response = await axios.get(endpoint, { 
+        headers,
+        params
+      });
       console.log("Articles response:", response);
       
       if (response.data && response.data.length > 0) {
