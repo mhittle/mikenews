@@ -1916,6 +1916,46 @@ const AdminPanel = () => {
   );
 };
 
+// Add fallback article loading on mount
+const HomeWithFallback = () => {
+  const homeComponent = <Home />;
+  const [showFallback, setShowFallback] = useState(false);
+  
+  useEffect(() => {
+    // If Home component doesn't load articles within 8 seconds, show fallbacks
+    const timer = setTimeout(() => {
+      setShowFallback(true);
+    }, 8000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  if (!showFallback) {
+    return homeComponent;
+  }
+  
+  // Fallback content when loading takes too long
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8 text-center">
+        <h1 className="text-4xl font-bold mb-2">NewsAlgo</h1>
+        <p className="text-xl text-gray-600">Customize your news feed algorithm</p>
+        
+        <div className="mt-4 p-3 bg-blue-100 text-blue-800 rounded max-w-xl mx-auto">
+          <p><strong>Welcome!</strong> We're experiencing some temporary loading issues.</p>
+          <p className="mt-2">In the meantime, here are some sample articles to demonstrate the interface.</p>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {createFallbackArticles().map(article => (
+          <ArticleCard key={article.id} article={article} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 function App() {
   return (
     <div className="App min-h-screen bg-gray-100">
@@ -1923,7 +1963,7 @@ function App() {
         <BrowserRouter>
           <Navbar />
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<HomeWithFallback />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/preferences" element={<Preferences />} />
