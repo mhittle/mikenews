@@ -1515,6 +1515,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/preferences" element={<Preferences />} />
             <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/feeds/:feedId" element={<FeedDetail />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
