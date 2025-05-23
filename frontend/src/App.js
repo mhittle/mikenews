@@ -729,6 +729,16 @@ const Home = () => {
     if (user?.preferences) {
       setPreferences(user.preferences);
     }
+    
+    // If no articles loaded after 5 seconds, show fallback articles
+    const timeoutId = setTimeout(() => {
+      if (articles.length === 0 && !loading) {
+        console.log("No articles loaded after timeout, showing fallbacks");
+        setArticles(createFallbackArticles());
+      }
+    }, 5000);
+    
+    return () => clearTimeout(timeoutId);
   }, [user]);
   
   return (
