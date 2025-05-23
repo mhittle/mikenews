@@ -631,8 +631,24 @@ const Home = () => {
   };
   
   const applyFilters = async () => {
-    await savePreferences();
-    fetchArticles();
+    console.log("Applying filters with preferences:", preferences);
+    
+    try {
+      // Save preferences if user is logged in
+      if (user) {
+        await savePreferences();
+        console.log("Preferences saved successfully");
+      } else {
+        console.log("Guest mode - preferences will not be saved");
+      }
+      
+      // Fetch articles with current preferences
+      setLoading(true);
+      await fetchArticles();
+      console.log("Articles fetched with new filters");
+    } catch (error) {
+      console.error("Error applying filters:", error);
+    }
   };
   
   useEffect(() => {
