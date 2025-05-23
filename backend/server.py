@@ -848,86 +848,187 @@ async def root():
     return {"message": "News Aggregator API"}
 
 @api_router.get("/sample-articles", response_model=List[Article])
-async def list_sample_articles(limit: int = 5):
-    """Get sample articles without requiring authentication"""
+async def list_sample_articles(
+    limit: int = 5,
+    reading_level: Optional[int] = None,
+    information_density: Optional[int] = None,
+    bias_threshold: Optional[int] = None,
+    propaganda_threshold: Optional[int] = None,
+    show_paywalled: bool = True,
+    max_age_days: Optional[int] = None,
+    topics: Optional[str] = None,
+    topics_filter_type: Optional[str] = None,
+    regions: Optional[str] = None
+):
+    """Get sample articles without requiring authentication, with optional filtering"""
     # Get the latest articles from the database
-    articles = await db.articles.find().sort("published_date", -1).limit(limit).to_list(length=None)
+    query = {}
     
-    # If there are no articles in the database, return predefined samples
-    if not articles:
-        # Create sample articles
-        samples = [
-            {
-                "id": "sample-1",
-                "title": "Sample Article: Getting Started with NewsAlgo",
-                "url": "#",
-                "source": "NewsAlgo Demo",
-                "source_id": "sample",
-                "author": "System",
-                "published_date": datetime.utcnow(),
-                "summary": "This is a sample article to show how the interface works. You can customize your news feed using the controls above.",
-                "content": "This is sample content for demonstration purposes.",
-                "is_paywalled": False,
-                "classification": {
-                    "reading_level": 5.0,
-                    "information_density": 5.0,
-                    "bias_score": 8.0,
-                    "propaganda_score": 9.0,
-                    "length": 500,
-                    "topics": ["technology", "demo"],
-                    "region": "north_america"
-                },
-                "created_at": datetime.utcnow()
-            },
-            {
-                "id": "sample-2",
-                "title": "How to Use the Filter Controls",
-                "url": "#",
-                "source": "NewsAlgo Demo",
-                "source_id": "sample",
-                "author": "System",
-                "published_date": datetime.utcnow(),
-                "summary": "This article explains how to use the reading level, bias, and other filter controls to customize your news experience.",
-                "content": "This is sample content for demonstration purposes.",
-                "is_paywalled": False,
-                "classification": {
-                    "reading_level": 6.0,
-                    "information_density": 7.0,
-                    "bias_score": 7.0,
-                    "propaganda_score": 8.0,
-                    "length": 800,
-                    "topics": ["help", "demo"],
-                    "region": "europe"
-                },
-                "created_at": datetime.utcnow()
-            },
-            {
-                "id": "sample-3",
-                "title": "Understanding News Bias and Propaganda",
-                "url": "#",
-                "source": "NewsAlgo Demo",
-                "source_id": "sample",
-                "author": "System",
-                "published_date": datetime.utcnow(),
-                "summary": "Learn how the NewsAlgo system detects and classifies bias and propaganda in news articles.",
-                "content": "This is sample content for demonstration purposes.",
-                "is_paywalled": False,
-                "classification": {
-                    "reading_level": 8.0,
-                    "information_density": 9.0,
-                    "bias_score": 10.0,
-                    "propaganda_score": 10.0,
-                    "length": 1200,
-                    "topics": ["media", "politics"],
-                    "region": "north_america"
-                },
-                "created_at": datetime.utcnow()
-            }
-        ]
+    # Apply filters similar to the authenticated endpoint
+    if not show_paywalled:
+        query["is_paywalled"] = False
+    
+    # Handle article age filter
+    if max_age_days:
+        min_date = datetime.utcnow() - timedelta(days=max_age_days)
+        query["published_date"] = {"$gte": min_date}
+    
+    # Handle topics filter
+    if topics:
+        topic_list = topics.split(',')
+        if topic_list:
+            if topics_filter_type == "AND":
+                query["classification.topics"] = {"$all": topic_list}
+            else:
+                query["classification.topics"] = {"$in": topic_list}
+    
+    # Handle regions filter
+    if regions:
+        region_list = regions.split(',')
+        if region_list:
+            query["classification.region"] = {"$in": region_list}
+    
+    # Get articles from database with query
+    articles = await db.articles.find(query).sort("published_date", -1).limit(limit).to_list(length=None)
+    
+    # If there are articles in the database that match the criteria, return them
+    if articles:
+        filtered_articles = []
         
-        return [Article(**sample) for sample in samples]
+        for article_dict in articles:
+            article = Article(**article_dict)
+            if not article.classification:
+                continue
+            
+            # Skip if below thresholds (apply additional numeric filters)
+            if (reading_level and (article.classification.reading_level < reading_level - 2 or 
+                                  article.classification.reading_level > reading_level + 2)):
+                continue
+                
+            if (information_density and (article.classification.information_density < information_density - 2 or 
+                                        article.classification.information_density > information_density + 2)):
+                continue
+                
+            if bias_threshold and article.classification.bias_score < bias_threshold:
+                continue
+                
+            if propaganda_threshold and article.classification.propaganda_score < propaganda_threshold:
+                continue
+                
+            filtered_articles.append(article)
+        
+        if filtered_articles:
+            return filtered_articles[:limit]
     
-    return [Article(**article) for article in articles]
+    # If no matching articles in database, return predefined samples
+    # Create sample articles
+    samples = [
+        {
+            "id": "sample-1",
+            "title": "Sample Article: Getting Started with NewsAlgo",
+            "url": "#",
+            "source": "NewsAlgo Demo",
+            "source_id": "sample",
+            "author": "System",
+            "published_date": datetime.utcnow(),
+            "summary": "This is a sample article to show how the interface works. You can customize your news feed using the controls above.",
+            "content": "This is sample content for demonstration purposes.",
+            "is_paywalled": False,
+            "classification": {
+                "reading_level": 5.0,
+                "information_density": 5.0,
+                "bias_score": 8.0,
+                "propaganda_score": 9.0,
+                "length": 500,
+                "topics": ["technology", "demo"],
+                "region": "north_america"
+            },
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": "sample-2",
+            "title": "How to Use the Filter Controls",
+            "url": "#",
+            "source": "NewsAlgo Demo",
+            "source_id": "sample",
+            "author": "System",
+            "published_date": datetime.utcnow(),
+            "summary": "This article explains how to use the reading level, bias, and other filter controls to customize your news experience.",
+            "content": "This is sample content for demonstration purposes.",
+            "is_paywalled": False,
+            "classification": {
+                "reading_level": 6.0,
+                "information_density": 7.0,
+                "bias_score": 7.0,
+                "propaganda_score": 8.0,
+                "length": 800,
+                "topics": ["help", "demo"],
+                "region": "europe"
+            },
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": "sample-3",
+            "title": "Understanding News Bias and Propaganda",
+            "url": "#",
+            "source": "NewsAlgo Demo",
+            "source_id": "sample",
+            "author": "System",
+            "published_date": datetime.utcnow(),
+            "summary": "Learn how the NewsAlgo system detects and classifies bias and propaganda in news articles.",
+            "content": "This is sample content for demonstration purposes.",
+            "is_paywalled": False,
+            "classification": {
+                "reading_level": 8.0,
+                "information_density": 9.0,
+                "bias_score": 10.0,
+                "propaganda_score": 10.0,
+                "length": 1200,
+                "topics": ["media", "politics"],
+                "region": "north_america"
+            },
+            "created_at": datetime.utcnow()
+        }
+    ]
+    
+    # Apply filters to sample articles
+    filtered_samples = []
+    for sample in samples:
+        if not show_paywalled and sample["is_paywalled"]:
+            continue
+            
+        if reading_level and (sample["classification"]["reading_level"] < reading_level - 2 or 
+                             sample["classification"]["reading_level"] > reading_level + 2):
+            continue
+            
+        if information_density and (sample["classification"]["information_density"] < information_density - 2 or 
+                                   sample["classification"]["information_density"] > information_density + 2):
+            continue
+            
+        if bias_threshold and sample["classification"]["bias_score"] < bias_threshold:
+            continue
+            
+        if propaganda_threshold and sample["classification"]["propaganda_score"] < propaganda_threshold:
+            continue
+            
+        if topics:
+            topic_list = topics.split(',')
+            if topic_list:
+                if topics_filter_type == "AND":
+                    if not all(topic in sample["classification"]["topics"] for topic in topic_list):
+                        continue
+                else: # OR is default
+                    if not any(topic in sample["classification"]["topics"] for topic in topic_list):
+                        continue
+        
+        if regions:
+            region_list = regions.split(',')
+            if region_list and sample["classification"]["region"] not in region_list:
+                continue
+                
+        filtered_samples.append(sample)
+    
+    return [Article(**sample) for sample in filtered_samples]
 
 # Include the router in the main app
 app.include_router(api_router)
