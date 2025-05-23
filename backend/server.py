@@ -744,6 +744,11 @@ async def list_articles(
         if not prefs.show_paywalled:
             query["is_paywalled"] = False
         
+        # Handle article age filter
+        if prefs.max_age_days > 0:
+            min_date = datetime.utcnow() - timedelta(days=prefs.max_age_days)
+            query["published_date"] = {"$gte": min_date}
+        
         # Topic preferences if specified
         if prefs.topics:
             if prefs.topics_filter_type == "AND":
