@@ -486,6 +486,8 @@ const Home = () => {
   
   const fetchArticles = async () => {
     setLoading(true);
+    setArticles([]); // Clear existing articles while loading
+    
     try {
       console.log("Fetching articles from backend...");
       const token = localStorage.getItem('token');
@@ -504,8 +506,6 @@ const Home = () => {
         endpoint = `${API}/sample-articles`;
         
         // For guest users, manually add preference params
-        // This is just for demonstration as the sample-articles endpoint 
-        // doesn't actually filter based on these params in the backend
         params = {
           reading_level: preferences.reading_level,
           information_density: preferences.information_density,
@@ -527,11 +527,20 @@ const Home = () => {
         }
       }
       
-      console.log(`Making API request to ${endpoint}`);
+      console.log(`Making API request to ${endpoint} with params:`, params);
+      console.log(`Headers:`, headers);
+      
+      // Set a timeout to ensure we don't wait forever
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const response = await axios.get(endpoint, { 
         headers,
-        params
+        params,
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       console.log("Articles response:", response);
       
       if (response.data && response.data.length > 0) {
@@ -540,65 +549,8 @@ const Home = () => {
       } else {
         console.log("No articles returned from API, using fallback sample articles");
         // Add fallback sample articles for empty response
-        setArticles([
-          {
-            id: "fallback-1",
-            title: "Sample Article: Getting Started with NewsAlgo",
-            url: "#",
-            source: "NewsAlgo Demo",
-            author: "System",
-            published_date: new Date().toISOString(),
-            summary: "This is a sample article to show how the interface works. You can customize your news feed using the controls above.",
-            is_paywalled: false,
-            classification: {
-              reading_level: 5,
-              information_density: 5,
-              bias_score: 8,
-              propaganda_score: 9,
-              length: 500,
-              topics: ["technology", "demo"],
-              region: "north_america"
-            }
-          },
-          {
-            id: "fallback-2",
-            title: "How to Use the Filter Controls",
-            url: "#",
-            source: "NewsAlgo Demo",
-            author: "System",
-            published_date: new Date().toISOString(),
-            summary: "This article explains how to use the reading level, bias, and other filter controls to customize your news experience.",
-            is_paywalled: false,
-            classification: {
-              reading_level: 6,
-              information_density: 7,
-              bias_score: 7,
-              propaganda_score: 8,
-              length: 800,
-              topics: ["help", "demo"],
-              region: "europe"
-            }
-          },
-          {
-            id: "fallback-3",
-            title: "Understanding News Bias and Propaganda",
-            url: "#",
-            source: "NewsAlgo Demo",
-            author: "System",
-            published_date: new Date().toISOString(),
-            summary: "Learn how the NewsAlgo system detects and classifies bias and propaganda in news articles.",
-            is_paywalled: false,
-            classification: {
-              reading_level: 8,
-              information_density: 9,
-              bias_score: 10,
-              propaganda_score: 10,
-              length: 1200,
-              topics: ["media", "politics"],
-              region: "north_america"
-            }
-          }
-        ]);
+        const fallbackArticles = createFallbackArticles();
+        setArticles(fallbackArticles);
       }
     } catch (error) {
       console.error("Failed to fetch articles:", error);
@@ -606,49 +558,74 @@ const Home = () => {
       
       // Show sample articles even on error
       console.log("Using fallback sample articles due to error");
-      setArticles([
-        {
-          id: "error-1",
-          title: "Sample Article: Getting Started with NewsAlgo",
-          url: "#",
-          source: "NewsAlgo Demo",
-          author: "System",
-          published_date: new Date().toISOString(),
-          summary: "This is a sample article to show how the interface works. You can customize your news feed using the controls above.",
-          is_paywalled: false,
-          classification: {
-            reading_level: 5,
-            information_density: 5,
-            bias_score: 8,
-            propaganda_score: 9,
-            length: 500,
-            topics: ["technology", "demo"],
-            region: "north_america"
-          }
-        },
-        {
-          id: "error-2",
-          title: "How to Use the Filter Controls",
-          url: "#",
-          source: "NewsAlgo Demo",
-          author: "System",
-          published_date: new Date().toISOString(),
-          summary: "This article explains how to use the reading level, bias, and other filter controls to customize your news experience.",
-          is_paywalled: false,
-          classification: {
-            reading_level: 6,
-            information_density: 7,
-            bias_score: 7,
-            propaganda_score: 8,
-            length: 800,
-            topics: ["help", "demo"],
-            region: "europe"
-          }
-        }
-      ]);
+      const fallbackArticles = createFallbackArticles();
+      setArticles(fallbackArticles);
     } finally {
       setLoading(false);
     }
+  };
+  
+  // Helper function to create fallback articles
+  const createFallbackArticles = () => {
+    return [
+      {
+        id: "fallback-1",
+        title: "Sample Article: Getting Started with NewsAlgo",
+        url: "#",
+        source: "NewsAlgo Demo",
+        author: "System",
+        published_date: new Date().toISOString(),
+        summary: "This is a sample article to show how the interface works. You can customize your news feed using the controls above.",
+        is_paywalled: false,
+        classification: {
+          reading_level: 5,
+          information_density: 5,
+          bias_score: 8,
+          propaganda_score: 9,
+          length: 500,
+          topics: ["technology", "demo"],
+          region: "north_america"
+        }
+      },
+      {
+        id: "fallback-2",
+        title: "How to Use the Filter Controls",
+        url: "#",
+        source: "NewsAlgo Demo",
+        author: "System",
+        published_date: new Date().toISOString(),
+        summary: "This article explains how to use the reading level, bias, and other filter controls to customize your news experience.",
+        is_paywalled: false,
+        classification: {
+          reading_level: 6,
+          information_density: 7,
+          bias_score: 7,
+          propaganda_score: 8,
+          length: 800,
+          topics: ["help", "demo"],
+          region: "europe"
+        }
+      },
+      {
+        id: "fallback-3",
+        title: "Understanding News Bias and Propaganda",
+        url: "#",
+        source: "NewsAlgo Demo",
+        author: "System",
+        published_date: new Date().toISOString(),
+        summary: "Learn how the NewsAlgo system detects and classifies bias and propaganda in news articles.",
+        is_paywalled: false,
+        classification: {
+          reading_level: 8,
+          information_density: 9,
+          bias_score: 10,
+          propaganda_score: 10,
+          length: 1200,
+          topics: ["media", "politics"],
+          region: "north_america"
+        }
+      }
+    ];
   };
   
   const savePreferences = async () => {
