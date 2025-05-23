@@ -715,6 +715,7 @@ const Home = () => {
         preferences={preferences} 
         setPreferences={setPreferences}
         applyFilters={applyFilters}
+        loading={loading}
       />
       
       {loading ? (
