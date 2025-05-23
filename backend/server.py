@@ -519,7 +519,7 @@ async def process_feed(feed_id: str):
     articles = await fetch_rss_feed(feed)
     
     for article in articles:
-        await process_article(article, feed.region)
+        await process_article(article, feed)
 
 async def process_all_feeds():
     """Process all active RSS feeds"""
