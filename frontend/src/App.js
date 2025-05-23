@@ -518,10 +518,6 @@ const Home = () => {
           params.regions = preferences.regions.join(',');
         }
       }
-      } else {
-        console.log("Using sample articles endpoint for guest");
-        endpoint = `${API}/sample-articles`;
-      }
       
       console.log(`Making API request to ${endpoint}`);
       const response = await axios.get(endpoint, { 
