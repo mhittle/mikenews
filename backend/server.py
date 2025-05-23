@@ -676,6 +676,27 @@ async def delete_feed(
         )
     return {"message": "Feed deleted successfully"}
 
+@api_router.get("/feeds/{feed_id}/articles", response_model=List[Article])
+async def get_feed_articles(
+    feed_id: str,
+    limit: int = 50,
+    skip: int = 0,
+    current_user: User = Depends(get_current_user)
+):
+    """Get articles from a specific feed"""
+    # Check if feed exists
+    feed = await db.rss_feeds.find_one({"id": feed_id})
+    if not feed:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Feed not found"
+        )
+    
+    # Get articles from this feed
+    articles = await db.articles.find({"source_id": feed_id}).sort("published_date", -1).skip(skip).limit(limit).to_list(length=None)
+    
+    return [Article(**article) for article in articles]
+
 @api_router.post("/feeds/{feed_id}/process", response_model=dict)
 async def trigger_feed_processing(
     feed_id: str,
