@@ -449,9 +449,17 @@ const FilterBar = ({ preferences, setPreferences, applyFilters }) => {
       
       <button
         onClick={applyFilters}
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        disabled={loading}
+        className={`w-full ${loading ? 'bg-blue-400' : 'bg-blue-600'} text-white py-2 rounded hover:bg-blue-700 transition flex justify-center items-center`}
       >
-        Apply Filters
+        {loading ? (
+          <>
+            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></div>
+            Applying Filters...
+          </>
+        ) : (
+          'Apply Filters'
+        )}
       </button>
     </div>
   );
