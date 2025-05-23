@@ -1706,6 +1706,12 @@ const AdminPanel = () => {
                     </td>
                     <td className="py-3 px-4 text-center">
                       <div className="flex justify-center space-x-2">
+                        <Link
+                          to={`/feeds/${feed.id}`}
+                          className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                        >
+                          View Articles
+                        </Link>
                         <button
                           onClick={() => processFeed(feed.id)}
                           disabled={processing}
