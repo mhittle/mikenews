@@ -362,6 +362,26 @@ const FilterBar = ({ preferences, setPreferences, applyFilters }) => {
           </div>
           <p className="text-xs text-gray-500">Higher values filter out propaganda</p>
         </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Article Age: {preferences.max_age_days} days
+          </label>
+          <input
+            type="range"
+            name="max_age_days"
+            min="1"
+            max="90"
+            value={preferences.max_age_days}
+            onChange={handleChange}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>1 day</span>
+            <span>90 days</span>
+          </div>
+          <p className="text-xs text-gray-500">Maximum age of articles to display</p>
+        </div>
       </div>
       
       <div className="mb-4">
