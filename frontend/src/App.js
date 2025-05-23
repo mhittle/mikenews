@@ -298,6 +298,10 @@ const FilterBar = ({ preferences, setPreferences, applyFilters }) => {
             onChange={handleChange}
             className="w-full"
           />
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>Simple (1)</span>
+            <span>Complex (10)</span>
+          </div>
         </div>
         
         <div>
@@ -313,6 +317,10 @@ const FilterBar = ({ preferences, setPreferences, applyFilters }) => {
             onChange={handleChange}
             className="w-full"
           />
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>Light (1)</span>
+            <span>Dense (10)</span>
+          </div>
         </div>
         
         <div>
@@ -328,6 +336,10 @@ const FilterBar = ({ preferences, setPreferences, applyFilters }) => {
             onChange={handleChange}
             className="w-full"
           />
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>Any bias (1)</span>
+            <span>Neutral only (10)</span>
+          </div>
           <p className="text-xs text-gray-500">Higher values show more neutral content</p>
         </div>
         
@@ -344,6 +356,10 @@ const FilterBar = ({ preferences, setPreferences, applyFilters }) => {
             onChange={handleChange}
             className="w-full"
           />
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>Any content (1)</span>
+            <span>No propaganda (10)</span>
+          </div>
           <p className="text-xs text-gray-500">Higher values filter out propaganda</p>
         </div>
       </div>
