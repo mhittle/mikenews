@@ -103,6 +103,7 @@ class UserPreferences(BaseModel):
     regions: List[str] = []
     show_paywalled: bool = True
     topics_filter_type: str = "OR"  # "AND" or "OR"
+    max_age_days: int = 30  # maximum age of articles in days
 
 class User(UserBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
