@@ -452,7 +452,8 @@ const Home = () => {
     topics: [],
     regions: [],
     show_paywalled: true,
-    topics_filter_type: "OR"
+    topics_filter_type: "OR",
+    max_age_days: 30
   });
   
   const fetchArticles = async () => {
