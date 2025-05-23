@@ -710,6 +710,15 @@ const Home = () => {
         <div className="text-center py-10">
           <p className="text-xl text-gray-600">No articles found with your current filters</p>
           <p className="text-gray-500 mt-2">Try adjusting your preferences or check back later</p>
+          <button
+            onClick={() => {
+              const fallbackArticles = createFallbackArticles();
+              setArticles(fallbackArticles);
+            }}
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Show Sample Articles
+          </button>
         </div>
       )}
     </div>
