@@ -485,10 +485,39 @@ const Home = () => {
       // Determine which endpoint to use based on whether user is logged in
       let endpoint = `${API}/articles`;
       const headers = {};
+      let params = {};
       
       if (token) {
-        console.log("Using authenticated endpoint");
+        console.log("Using authenticated endpoint with token");
         headers.Authorization = `Bearer ${token}`;
+        // When logged in, preferences are passed via auth token to backend
+      } else {
+        console.log("Using sample articles endpoint for guest with preference params");
+        endpoint = `${API}/sample-articles`;
+        
+        // For guest users, manually add preference params
+        // This is just for demonstration as the sample-articles endpoint 
+        // doesn't actually filter based on these params in the backend
+        params = {
+          reading_level: preferences.reading_level,
+          information_density: preferences.information_density,
+          bias_threshold: preferences.bias_threshold,
+          propaganda_threshold: preferences.propaganda_threshold,
+          show_paywalled: preferences.show_paywalled,
+          max_age_days: preferences.max_age_days
+        };
+        
+        // Add topics if selected
+        if (preferences.topics && preferences.topics.length > 0) {
+          params.topics = preferences.topics.join(',');
+          params.topics_filter_type = preferences.topics_filter_type;
+        }
+        
+        // Add regions if selected
+        if (preferences.regions && preferences.regions.length > 0) {
+          params.regions = preferences.regions.join(',');
+        }
+      }
       } else {
         console.log("Using sample articles endpoint for guest");
         endpoint = `${API}/sample-articles`;
