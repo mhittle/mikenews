@@ -479,13 +479,16 @@ async def classify_article(article: Article, feed_region: str):
     
     return classification
 
-async def process_article(article: Article, feed_region: str):
+async def process_article(article: Article, feed: RSSFeed):
     """Process an article - detect paywall, extract content, classify"""
     try:
         # Skip processing if already in database
         existing = await db.articles.find_one({"url": article.url})
         if existing:
             return None
+        
+        # Set source_id to feed ID for proper feed-article relationship
+        article.source_id = feed.id
         
         # Detect paywall
         await detect_paywall(article)
@@ -495,7 +498,7 @@ async def process_article(article: Article, feed_region: str):
             article = await extract_full_article(article)
         
         # Classify article
-        article.classification = await classify_article(article, feed_region)
+        article.classification = await classify_article(article, feed.region)
         
         # Save to database
         article_dict = article.dict()
