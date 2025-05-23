@@ -1143,6 +1143,235 @@ const Preferences = () => {
   );
 };
 
+const FeedDetail = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { feedId } = useParams();
+  const [feed, setFeed] = useState(null);
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    
+    fetchFeedDetails();
+    fetchFeedArticles();
+  }, [feedId, user, navigate]);
+  
+  const fetchFeedDetails = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API}/feeds`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const foundFeed = response.data.find(f => f.id === feedId);
+      if (foundFeed) {
+        setFeed(foundFeed);
+      } else {
+        setError('Feed not found');
+      }
+    } catch (error) {
+      console.error('Failed to fetch feed details:', error);
+      setError('Failed to load feed details');
+    }
+  };
+  
+  const fetchFeedArticles = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API}/feeds/${feedId}/articles`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setArticles(response.data);
+    } catch (error) {
+      console.error('Failed to fetch feed articles:', error);
+      setError('Failed to load articles from this feed');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const processFeed = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `${API}/feeds/${feedId}/process`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      alert('Feed processing started. Check back in a few minutes for new articles.');
+    } catch (error) {
+      console.error('Failed to process feed:', error);
+      setError('Failed to process feed');
+    }
+  };
+  
+  const renderClassificationMetrics = (classification) => {
+    if (!classification) return null;
+    
+    return (
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        <div className="flex items-center">
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div 
+              className="bg-blue-600 h-2.5 rounded-full" 
+              style={{ width: `${(classification.reading_level/10)*100}%` }}
+            ></div>
+          </div>
+          <span className="ml-2 text-sm w-36">Reading: {classification.reading_level.toFixed(1)}/10</span>
+        </div>
+        
+        <div className="flex items-center">
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div 
+              className="bg-green-600 h-2.5 rounded-full" 
+              style={{ width: `${(classification.information_density/10)*100}%` }}
+            ></div>
+          </div>
+          <span className="ml-2 text-sm w-36">Density: {classification.information_density.toFixed(1)}/10</span>
+        </div>
+        
+        <div className="flex items-center">
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div 
+              className="bg-purple-600 h-2.5 rounded-full" 
+              style={{ width: `${(classification.bias_score/10)*100}%` }}
+            ></div>
+          </div>
+          <span className="ml-2 text-sm w-36">Bias: {classification.bias_score.toFixed(1)}/10</span>
+        </div>
+        
+        <div className="flex items-center">
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div 
+              className="bg-orange-600 h-2.5 rounded-full" 
+              style={{ width: `${(classification.propaganda_score/10)*100}%` }}
+            ></div>
+          </div>
+          <span className="ml-2 text-sm w-36">Propaganda: {classification.propaganda_score.toFixed(1)}/10</span>
+        </div>
+      </div>
+    );
+  };
+  
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Unknown date';
+    return new Date(dateString).toLocaleString();
+  };
+  
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">
+              {feed ? feed.name : 'Loading feed...'}
+            </h1>
+            {feed && (
+              <div className="text-sm text-gray-600 mt-1">
+                <p>Category: {feed.category}</p>
+                <p>Region: {feed.region.replace('_', ' ')}</p>
+                <p>URL: <a href={feed.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{feed.url}</a></p>
+                <p>Last checked: {feed.last_checked ? formatDate(feed.last_checked) : 'Never'}</p>
+              </div>
+            )}
+          </div>
+          
+          <div className="flex space-x-2">
+            <button
+              onClick={() => navigate('/admin')}
+              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition"
+            >
+              Back to Admin
+            </button>
+            <button
+              onClick={processFeed}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+            >
+              Process Feed Now
+            </button>
+          </div>
+        </div>
+        
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+        
+        <h2 className="text-xl font-semibold mb-4">Articles from this Feed</h2>
+        
+        {loading ? (
+          <div className="text-center py-10">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+            <p className="mt-2 text-gray-600">Loading articles...</p>
+          </div>
+        ) : articles.length > 0 ? (
+          <div className="space-y-4">
+            {articles.map((article) => (
+              <div key={article.id} className="border rounded-lg p-4 hover:bg-gray-50 transition">
+                <h3 className="text-lg font-medium mb-2">{article.title}</h3>
+                
+                <div className="flex justify-between text-sm text-gray-600 mb-2">
+                  <span>{article.author || 'Unknown author'}</span>
+                  <span>{formatDate(article.published_date)}</span>
+                </div>
+                
+                {article.is_paywalled && (
+                  <div className="mb-2 text-amber-600 text-sm font-medium">
+                    ⚠️ This article may be behind a paywall
+                  </div>
+                )}
+                
+                {article.summary && (
+                  <p className="text-gray-700 mb-3">{article.summary}</p>
+                )}
+                
+                {renderClassificationMetrics(article.classification)}
+                
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {article.classification?.topics.map((topic, index) => (
+                    <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                      {topic}
+                    </span>
+                  ))}
+                  {article.classification?.region && (
+                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                      {article.classification.region.replace('_', ' ')}
+                    </span>
+                  )}
+                </div>
+                
+                <a 
+                  href={article.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-blue-600 hover:underline"
+                >
+                  Read full article
+                </a>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-10">
+            <p className="text-xl text-gray-600">No articles found for this feed</p>
+            <p className="text-gray-500 mt-2">Try processing the feed or check back later</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const AdminPanel = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
