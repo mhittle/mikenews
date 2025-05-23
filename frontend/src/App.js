@@ -1189,7 +1189,13 @@ const FeedDetail = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      setArticles(response.data);
+      console.log('Articles for feed:', response.data);
+      setArticles(response.data || []);
+      
+      if (response.data && response.data.length === 0) {
+        // No articles found, but don't set as an error - just informational
+        console.log('No articles found for this feed. Try processing the feed first.');
+      }
     } catch (error) {
       console.error('Failed to fetch feed articles:', error);
       setError('Failed to load articles from this feed');
